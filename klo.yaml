@@ -1,0 +1,127 @@
+substitutions:
+  devicename: klo
+  friendly_name: Klo
+
+esphome:
+  name: $devicename
+  platform: ESP32
+  board: nodemcu-32s
+#  platform: ESP8266
+#  board: d1_mini
+#  board: nodemcuv2
+  includes:
+    - tof/tof_vl53l1x.h
+  libraries:
+    - "VL53L1x"
+
+<<: !include common/common.yaml
+<<: !include common/logger/logger_error.yaml
+
+#status_led:
+#  pin:
+#    number: D0
+#    inverted: True
+
+i2c:
+
+switch:
+  - platform: restart
+    name: $friendly_name Restart
+  # todo template switch to turn offf measurements
+  - platform: template
+    name: "tof Sensor-Status"
+    id: tof_sensor_status
+    icon: "mdi:toggle-switch"
+    lambda: |-
+      if (id(tof_sensor_status_state).state) {
+        return true;
+      } else {
+        return false;
+      }
+    turn_on_action:
+      - binary_sensor.template.publish:
+          id: tof_sensor_status_state
+          state: ON
+    turn_off_action:
+      - binary_sensor.template.publish:
+          id: tof_sensor_status_state
+          state: OFF
+
+binary_sensor:
+  - platform: status
+    name: $friendly_name Status
+  - platform: template
+    name: "tof sensor status state"
+    id: tof_sensor_status_state
+    internal: true
+
+
+sensor:
+  - platform: wifi_signal
+    name: $friendly_name RSSI
+    update_interval: 60s
+
+  - platform: uptime
+    name: $friendly_name Uptime
+
+  # https://github.com/jardous/tof_vl53l1x
+  - platform: custom
+    lambda: |-
+      auto my_sensor = new MyCustomSensor();
+      App.register_component(my_sensor);
+      return {my_sensor};
+    sensors:
+      - name: Distance raw
+        id: distance_raw
+        accuracy_decimals: 0
+        unit_of_measurement: "mm"
+        internal: true
+        on_value:
+          if:
+            condition:
+              # Same syntax for is_off
+              switch.is_on: tof_sensor_status
+            then:
+              - sensor.template.publish:
+                  id: distance_filtered
+                  #state: 42.0
+                  state: !lambda 'return id(distance_raw).state;'
+              - sensor.template.publish:
+                  id: distance
+                  #state: 42.0
+                  state: !lambda 'return id(distance_raw).state;'
+
+  - platform: template
+    name: Distance filtered
+    id: distance_filtered
+    accuracy_decimals: 0
+    unit_of_measurement: "mm"
+    icon: "mdi:ruler"
+    filters:
+      - sliding_window_moving_average:
+          window_size: 10
+          send_every: 5
+      - delta: 5.0
+      - heartbeat: 60s
+      
+  - platform: template
+    name: Distance
+    id: distance
+    accuracy_decimals: 0
+    unit_of_measurement: "mm"
+    icon: "mdi:ruler"
+    #device_class: None
+    filters:
+      - delta: 10
+
+  - platform: template
+    name: Timeouts
+    id: timeouts
+    accuracy_decimals: 0
+    unit_of_measurement: "Stk"
+    #device_class: None
+    icon: "mdi:alert-circle"
+    update_interval: 60s
+    lambda: |-
+      return num_timeouts;
+    
