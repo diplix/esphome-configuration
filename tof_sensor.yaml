@@ -1,0 +1,105 @@
+substitutions:
+  devicename: tof_sensor
+  friendly_name: tof sensor
+
+esphome:
+  name: $devicename
+  platform: ESP8266
+  board: nodemcuv2
+#  board: d1_mini
+#  platform: ESP32
+#  board: nodemcu-32s
+#  board: esp32dev
+
+  includes:
+    - tof_people_counter/tof_vl53l1x_api.h
+
+<<: !include common/common.yaml
+
+# Enable logging
+logger:
+  level: ERROR
+  esp8266_store_log_strings_in_flash: False
+
+i2c:
+
+switch:
+  - platform: restart
+    name: $friendly_name Restart
+
+binary_sensor:
+  - platform: status
+    name: $friendly_name Status
+
+  - platform: template
+    name: "Door sensor"
+    lambda: |-
+      if (id(tof_distance_avg).state < 1400) {
+        // someone standing in door
+        return true;
+      } else {
+        // no-one there 
+        return false;
+      }
+    filters:
+      - delayed_off: 100ms
+
+sensor:
+  - platform: wifi_signal
+    name: $friendly_name RSSI
+    update_interval: 60s
+
+  - platform: uptime
+    name: $friendly_name Uptime
+
+  - platform: custom
+    lambda: |-
+      auto people_counter = new PeopleCountSensor();
+      App.register_component(people_counter);
+      return {people_counter->people_sensor};
+    sensors:
+      - name: People
+        id: people_count
+        icon: "mdi:counter"
+        accuracy_decimals: 0
+        unit_of_measurement: "people"
+
+  - platform: mqtt_subscribe
+    name: "People reset"
+    id: people_reset
+    topic: $devicename/sensor/people/reset
+    internal: true
+    on_value:
+      then:
+        - lambda: |-
+            resetCounter = 1;
+
+  - platform: template
+    name: tof distance
+    id: tof_distance
+    accuracy_decimals: 0
+    icon: "mdi:ruler"
+    unit_of_measurement: "mm"
+    #device_class: None
+    update_interval: 1s
+    lambda: |-
+      return distance[1];
+    filters:
+      - delta: 100.0
+
+  - platform: template
+    name: tof distance avg
+    id: tof_distance_avg
+    accuracy_decimals: 0
+    icon: "mdi:ruler"
+    unit_of_measurement: "mm"
+    internal: true
+    #device_class: None
+    update_interval: 0.1s
+    lambda: |-
+      return distance[1];
+    filters:
+      - sliding_window_moving_average:
+          window_size: 10
+          send_every: 10
+
