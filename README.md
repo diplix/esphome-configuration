@@ -18,4 +18,4 @@ i use this sensor to measure the distance rom the ceiling (where the vl53l1x sen
 
 this is based on [@jardous](https://github.com/jardous) esphome [tof_vl53l1x](https://github.com/jardous/tof_vl53l1x) implementation. since i get timeout reading from time to time, i added a timeout sensor and a way to re-initialise the vl53l1x if too many timeouts happen.
 
-i also needed a way to switch off the measurements because our toilet is in a bathroom. steam from the shower seriously disrupts the  vl53l1x sensor mesurements, so i use a home assistant automation to turn off measurements iff a certain humidity is measured in the bathroom. if it’s dry enough the vl53l1x measure quite reliably, though it needs ocasional calibration which i do in home assistant.
+i also needed a way to switch off the measurements because our toilet is in a bathroom. steam from the shower seriously disrupts the  vl53l1x sensor mesurements, so i use a home assistant automation to turn off measurements if a certain humidity is measured in the bathroom. if it’s dry enough the vl53l1x measure quite reliably, though it needs ocasional calibration which i do in home assistant.
