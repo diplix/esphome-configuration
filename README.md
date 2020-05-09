@@ -12,3 +12,6 @@ i copied those libraries into the lib folder of the target folder, into which es
 i did not find a better way to include the libraries than putting them into the lib folder, but putting them there makes esphome find all neccessary files and compiles fine
 
 if you rename the yaml configuration file, esphome will use another target folder and you’ll need to copy the ```lib``` folder into the new folder. you’ll also need to copy ```tof_people_counter/tof_vl53l1x_api.h``` into your esphome configuration folder.
+
+## tof distance/toilet sensor
+this is based on @jardous esphome [tof_vl53l1x](https://github.com/jardous/tof_vl53l1x) implementation. since i get timeout reading from time to time, i added a timeout sensor and a way to re-initialise the vl53l1x if too many timeouts happen.
