@@ -2,7 +2,7 @@
 some of my [esphome](https://esphome.io) configurations.
 
 ## tof people counter (tof_sensor.yaml)
-this is an esphome version of a people counter sesor based on a vl53l1x time of flight sennsor. since the people counting only works when passing the door opening complety, i also added kind of a light barrier sensor, that senses if someone is standing in the door openneing.
+this is an esphome version of a people counter sensor based on a vl53l1x time of flight sensor. since the people counting only works when passing the door opening complety, i also added kind of a light barrier sensor, that senses if someone is standing in the door openneing.
 
 all the credit goes to [@Lyr3x](https://github.com/Lyr3x) on whose [Roode v1.0](https://github.com/Lyr3x/Roode/tree/v1.0) project this is based.
 [@Lyr3x](https://github.com/Lyr3x) reliable „smart home people counter“ uses a modified [STM32duino_Proximity_Gesture](https://github.com/stm32duino/Proximity_Gesture) library and an older version of the [vl53l1x-st-api-arduino](https://github.com/pololu/vl53l1x-st-api-arduino) library (vl53l1_api). both were first used in a proof of concept by „kabron“ described [here](https://community.st.com/s/question/0D50X0000A7VWoMSQW/is-vl53l1x-people-counting-source-code-available). 
