@@ -1,5 +1,5 @@
 # esphome configuration
- my esphome configurations
+some of my esphome configurations.
 
 ## tof people counter
 this is an esphome version of a people counter sensor based on a vl53l1x time of flight sennsor. since the prrople counting only works when passing the door openinng complety, i also added kind of a light barrier sensor, that senses if someone is standing in the door openneing.
